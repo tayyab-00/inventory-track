@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory Tracker</title>
+</head>
+<body>
+    <form id="loginform">
+        <label for="item">Item name: </label>
+        <input type="text" id="item" name="item" required><br>
+
+        <label for="desc">Description: </label>
+        <input type text" id="desc" name="desc" required><br>
+
+        <label for="price">Price: </label>
+        <input type="text" id="price" name="price" required><br>
+        
+        <label for="quantity">Quantity: </label>
+        <input type="text" id="quantity" name="quantity" required><br>
+        
+        <button type="submit">Add Item</button>
+    </form>
+
+    <ul id="items" class="list-group"></ul>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const apiEndpoint = "https://crudcrud.com/api/d36ddabfd88c467289f2ecad99f04269/it"; 
+            const listElem = document.getElementById("items");
+            const l = document.getElementById("loginform");
+
+            l.addEventListener('submit', userinfo);
+
+            async function loadItems() {
+                const response = await axios.get(apiEndpoint);
+                listElem.innerHTML = ''; 
+                response.data.forEach(show);
+            }
+
+            async function userinfo(j) {
+                j.preventDefault();
+                const item = document.getElementById("item");
+                const desc = document.getElementById("desc");
+                const price = document.getElementById("price");
+                const quantity = document.getElementById("quantity");
+                
+
+                const itemName = item.value;
+                const itemDesc = desc.value;
+                const itemPrice = price.value;
+                const itemQuantity = quantity.value;
+
+                        await axios.post(apiEndpoint, { itemName, itemDesc, itemPrice, itemQuantity });
+                        item.value = "";
+                        desc.value = "";
+                        price.value = "";
+                        quantity.value = "";
+                    
+                    
+                    
+                    loadItems();
+                }
+                        
+
+            async function buyItem(itemId, currentQuantity, itemName, itemDesc, itemPrice) {
+                const updatedQuantity = currentQuantity - 1;
+                if (updatedQuantity >= 0) {
+                    await axios.put(apiEndpoint + "/" + itemId, { itemName, itemDesc, itemPrice,itemQuantity: updatedQuantity });
+                } else {
+                   
+                    await axios.delete(apiEndpoint + "/" + itemId);
+                }
+                loadItems();
+            }
+            async function buyItem1(itemId, currentQuantity, itemName, itemDesc, itemPrice){
+                const updatedQuantity = currentQuantity - 2;
+                if (updatedQuantity >= 0) {
+                    await axios.put(apiEndpoint + "/" + itemId, { itemName, itemDesc, itemPrice, itemQuantity:updatedQuantity });
+                } else {
+                   
+                    await axios.delete(apiEndpoint + "/" + itemId);
+                
+                }
+                loadItems();
+            }
+            async function buyItem2(itemId, currentQuantity, itemName, itemDesc, itemPrice) {
+                const updatedQuantity = currentQuantity - 3;
+                if (updatedQuantity >= 0) {
+                    await axios.put(apiEndpoint + "/" + itemId, { itemName, itemDesc, itemPrice, itemQuantity: updatedQuantity });
+                }   else{
+                    await axios.delete(apiEndpoint + "/" + itemId);
+                   }
+                
+                loadItems();
+            }
+
+            function show(data) {
+                const listItem = document.createElement("li");
+                listItem.className = 'list-group-item';
+                listItem.textContent = `Item: ${data.itemName}, Description: ${data.itemDesc}, Price: $${data.itemPrice}, Quantity: ${data.itemQuantity}`;
+
+                const buy = document.createElement("button");
+                buy.textContent = "Buy 1";
+                buy.className = "btn btn-success float-right";
+
+                buy.addEventListener("click", () => {
+                    buyItem(data._id, data.itemQuantity, data.itemName, data.itemDesc, data.itemPrice);
+                });
+                const buy1 = document.createElement("button");
+                buy1.textContent = "Buy 2";
+                buy1.className = "btn btn-success float-right";
+
+                buy1.addEventListener("click", () => {
+                    buyItem1(data._id, data.itemQuantity, data.itemName, data.itemDesc, data.itemPrice);
+                });
+                const buy2 = document.createElement("button");
+                buy2.textContent = "Buy 3";
+                buy2.className = "btn btn-success float-right";
+
+                buy2.addEventListener("click", () => {
+                    buyItem2(data._id, data.itemQuantity, data.itemName, data.itemDesc, data.itemPrice);
+                });
+
+                listItem.appendChild(buy);
+                listItem.appendChild(buy1);
+                listItem.appendChild(buy2);
+                listElem.appendChild(listItem);
+            }
+
+            loadItems();
+        });
+    </script>
+</body>
+</html>
